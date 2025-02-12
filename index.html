@@ -3,300 +3,337 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Musical Boxing Machine</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>POWERBEATZ - Force Measurement</title>
     <style>
-        /* General styles */
         body {
+            background-color: #111;
+            color: #fff;
             font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #121212;
-            color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            height: 100%;
-            flex-direction: column;
-            overflow-x: hidden;
-            overflow-y: auto;
-            padding-bottom: 50px; /* To prevent footer cut-off */
         }
 
-        .container {
-            background: linear-gradient(145deg, #333, #444);
-            border-radius: 20px;
-            padding: 40px;
-            width: 90%;
-            max-width: 1200px;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.8);
+        header {
+            background-color: #222;
+            padding: 50px 20px;
             text-align: center;
-            margin-top: 40px;
-            flex-grow: 1;
-        }
-
-        h1 {
             font-size: 3em;
-            color: #FFD700;
-            margin-bottom: 30px;
-            text-shadow: 4px 4px 10px rgba(0, 0, 0, 0.6);
+            color: #ff7f50;
+            border-bottom: 4px solid #444;
         }
 
-        button {
-            background-color: #28a745;
-            color: white;
+        header h1 {
+            margin: 0;
+        }
+
+        .header-buttons {
+            margin-top: 20px;
+        }
+
+        .header-buttons button {
+            padding: 15px 30px;
             font-size: 18px;
-            padding: 12px 25px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
-            margin: 15px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            margin: 10px;
+            transition: background-color 0.3s;
         }
 
-        button:hover {
-            background-color: #218838;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        .header-buttons button:hover {
+            background-color: #e07b47;
         }
 
-        .piezo-section {
-            background-color: #222;
+        .header-buttons button:active {
+            background-color: #cf6f3f;
+        }
+
+        /* Bluetooth button with blue color */
+        #bluetoothButton {
+            background-color: #007bff;
+            color: white;
+        }
+
+        #bluetoothButton:hover {
+            background-color: #0056b3;
+        }
+
+        #bluetoothButton:active {
+            background-color: #004085;
+        }
+
+        /* Reset button styled in red */
+        #resetButton {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        #resetButton:hover {
+            background-color: #c82333;
+        }
+
+        #resetButton:active {
+            background-color: #bd2130;
+        }
+
+        .container {
             padding: 30px;
-            border-radius: 15px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
             margin-top: 30px;
-            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.6);
-            width: 100%;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
         }
 
-        .piezo-section h3 {
-            color: #66CCFF;
-            font-size: 2em;
-            margin-bottom: 15px;
-            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
+        .pad {
+            background-color: #2c2c2c;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
         }
 
-        .force-display {
-            font-size: 36px;
+        .pad h3 {
+            margin: 0;
+            font-size: 28px;
+            color: #ff7f50;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .pad .live-value {
+            font-size: 32px;
+            margin: 15px 0;
+            color: #8ac926;
             font-weight: bold;
-            color: #66FF66;
-            margin-top: 10px;
-            text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.6);
         }
 
-        canvas {
-            margin-top: 20px;
-            width: 100%;
-            max-width: 600px;
-            border-radius: 15px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-        }
-
-        table {
+        .pad .history-table {
             margin-top: 20px;
             width: 100%;
             border-collapse: collapse;
+        }
+
+        .pad .history-table th, .pad .history-table td {
+            border: 1px solid #555;
+            padding: 12px;
+            text-align: center;
             color: #ccc;
         }
 
-        th, td {
-            padding: 14px;
-            text-align: center;
-            border: 1px solid #444;
-            font-size: 16px;
-        }
-
-        th {
+        .pad .history-table th {
             background-color: #444;
+            font-size: 18px;
         }
 
-        td {
-            background-color: #333;
+        .graph {
+            height: 200px; /* Reduced graph size */
+            background-color: #222;
+            border-radius: 8px;
+            margin-top: 20px;
         }
 
-        .footer {
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
             margin-top: 40px;
-            font-size: 1em;
-            color: #bbb;
-            text-align: center;
         }
 
-        /* Responsive styling */
-        @media screen and (max-width: 768px) {
-            h1 {
-                font-size: 2.5em;
-            }
+        .button-container button {
+            padding: 14px 30px;
+            background-color: #444;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
 
+        .button-container button:hover {
+            background-color: #555;
+        }
+
+        .button-container button:active {
+            background-color: #666;
+        }
+
+        /* Styling for the Bluetooth and Reset buttons under the header */
+        .bluetooth-reset-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        /* Responsive layout */
+        @media (max-width: 768px) {
             .container {
-                padding: 20px;
+                grid-template-columns: 1fr;
             }
 
-            .piezo-section {
-                padding: 15px;
-            }
-
-            .force-display {
-                font-size: 28px;
-            }
-
-            button {
-                font-size: 16px;
-                padding: 10px 20px;
+            .graph {
+                height: 150px;
             }
         }
-
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Musical Boxing Machine - Force Sensor</h1>
+    <header>
+        <h1>POWERBEATZ - Force Measurement</h1>
+        <div class="header-buttons">
+            <button id="bluetoothButton" onclick="connectBluetooth()">Connect Bluetooth</button>
+            <button id="resetButton" onclick="resetData()">Reset Data</button>
+        </div>
+    </header>
 
-    <!-- Bluetooth Button -->
-    <button onclick="connectBluetooth()">Connect Bluetooth</button>
+    <div class="container">
+        <!-- Pad 1 -->
+        <div class="pad" id="pad1">
+            <h3>Pad 1</h3>
+            <p class="live-value" id="forceDisplay1">0.00 kg</p>
+            <table class="history-table" id="historyTable1">
+                <thead>
+                    <tr><th>Time</th><th>Force (kg)</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <canvas id="graph1" class="graph"></canvas>
+        </div>
 
-    <!-- Piezometer 1 Section -->
-    <div id="piezometer1" class="piezo-section">
-        <h3>Piezometer 1</h3>
-        <h4>Live Force: <span id="forceDisplay1" class="force-display">0</span> kg</h4>
-        <canvas id="forceChart1"></canvas>
-        <h4>Past Readings</h4>
-        <table>
-            <thead>
-                <tr>
-                    <th>Time</th>
-                    <th>Force (kg)</th>
-                </tr>
-            </thead>
-            <tbody id="historyTable1"></tbody>
-        </table>
+        <!-- Pad 2 -->
+        <div class="pad" id="pad2">
+            <h3>Pad 2</h3>
+            <p class="live-value" id="forceDisplay2">0.00 kg</p>
+            <table class="history-table" id="historyTable2">
+                <thead>
+                    <tr><th>Time</th><th>Force (kg)</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <canvas id="graph2" class="graph"></canvas>
+        </div>
+
+        <!-- Pad 3 -->
+        <div class="pad" id="pad3">
+            <h3>Pad 3</h3>
+            <p class="live-value" id="forceDisplay3">0.00 kg</p>
+            <table class="history-table" id="historyTable3">
+                <thead>
+                    <tr><th>Time</th><th>Force (kg)</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <canvas id="graph3" class="graph"></canvas>
+        </div>
+
+        <!-- Pad 4 -->
+        <div class="pad" id="pad4">
+            <h3>Pad 4</h3>
+            <p class="live-value" id="forceDisplay4">0.00 kg</p>
+            <table class="history-table" id="historyTable4">
+                <thead>
+                    <tr><th>Time</th><th>Force (kg)</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <canvas id="graph4" class="graph"></canvas>
+        </div>
     </div>
 
-    <!-- Piezometer 2 Section -->
-    <div id="piezometer2" class="piezo-section">
-        <h3>Piezometer 2</h3>
-        <h4>Live Force: <span id="forceDisplay2" class="force-display">0</span> kg</h4>
-        <canvas id="forceChart2"></canvas>
-        <h4>Past Readings</h4>
-        <table>
-            <thead>
-                <tr>
-                    <th>Time</th>
-                    <th>Force (kg)</th>
-                </tr>
-            </thead>
-            <tbody id="historyTable2"></tbody>
-        </table>
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let forceData = [[], [], [], []];
+        let charts = [];
 
-    <!-- Piezometer 3 Section -->
-    <div id="piezometer3" class="piezo-section">
-        <h3>Piezometer 3</h3>
-        <h4>Live Force: <span id="forceDisplay3" class="force-display">0</span> kg</h4>
-        <canvas id="forceChart3"></canvas>
-        <h4>Past Readings</h4>
-        <table>
-            <thead>
-                <tr>
-                    <th>Time</th>
-                    <th>Force (kg)</th>
-                </tr>
-            </thead>
-            <tbody id="historyTable3"></tbody>
-        </table>
-    </div>
+        const SERVICE_UUID = 'your-service-uuid';  // Replace with your actual service UUID
+        const CHARACTERISTIC_UUID = 'your-characteristic-uuid';  // Replace with your actual characteristic UUID
 
-    <!-- Piezometer 4 Section -->
-    <div id="piezometer4" class="piezo-section">
-        <h3>Piezometer 4</h3>
-        <h4>Live Force: <span id="forceDisplay4" class="force-display">0</span> kg</h4>
-        <canvas id="forceChart4"></canvas>
-        <h4>Past Readings</h4>
-        <table>
-            <thead>
-                <tr>
-                    <th>Time</th>
-                    <th>Force (kg)</th>
-                </tr>
-            </thead>
-            <tbody id="historyTable4"></tbody>
-        </table>
-    </div>
+        // Function to connect Bluetooth and fetch data
+        async function connectBluetooth() {
+            try {
+                const device = await navigator.bluetooth.requestDevice({
+                    acceptAllDevices: true,
+                    optionalServices: [SERVICE_UUID]
+                });
 
-    <!-- Footer -->
-    <div class="footer">
-        <p>&copy; 2025 Musical Boxing Machine - Force Sensor System</p>
-    </div>
-</div>
+                const server = await device.gatt.connect();
+                const service = await server.getPrimaryService(SERVICE_UUID);
+                const characteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
 
-<script>
-let charts = [], forceData = [];
+                characteristic.addEventListener('characteristicvaluechanged', handleData);
+                await characteristic.startNotifications();
 
-// Bluetooth Connection
-async function connectBluetooth() {
-    try {
-        const device = await navigator.bluetooth.requestDevice({
-            acceptAllDevices: true,
-            optionalServices: ['battery_service']
-        });
-
-        const server = await device.gatt.connect();
-        const service = await server.getPrimaryService('battery_service');
-        const characteristic = await service.getCharacteristic('battery_level');
-
-        characteristic.addEventListener('characteristicvaluechanged', handleData);
-        await characteristic.startNotifications();
-    } catch (error) {
-        alert("Bluetooth Error: " + error);
-    }
-}
-
-// Handling incoming data and updating values
-function handleData(event) {
-    let adcValue = event.target.value.getUint8(0);
-
-    let voltage = (adcValue / 4095) * 3.3;
-    let forceKg = (voltage - 0.1) / 0.02;  // Adjust this formula for your sensor scaling
-
-    for (let i = 1; i <= 4; i++) {
-        document.getElementById(`forceDisplay${i}`).innerText = forceKg.toFixed(2);
-        let now = new Date().toLocaleTimeString();
-        document.getElementById(`historyTable${i}`).innerHTML += `<tr><td>${now}</td><td>${forceKg.toFixed(2)} kg</td></tr>`;
-
-        forceData[i - 1].push({ x: now, y: forceKg });
-        if (forceData[i - 1].length > 10) forceData[i - 1].shift();
-        charts[i - 1].update();
-    }
-}
-
-// Initialize charts
-document.addEventListener("DOMContentLoaded", function() {
-    for (let i = 1; i <= 4; i++) {
-        let ctx = document.getElementById(`forceChart${i}`).getContext("2d");
-        charts[i - 1] = new Chart(ctx, {
-            type: "line",
-            data: {
-                datasets: [{
-                    label: `Force (kg) Piezometer ${i}`,
-                    data: forceData[i - 1] || [],
-                    borderColor: "#66CCFF",
-                    backgroundColor: "rgba(102,204,255,0.2)"
-                }]
-            },
-            options: {
-                scales: {
-                    x: { type: "linear" },
-                    y: { beginAtZero: true }
-                }
+                console.log('Connected to Bluetooth device!');
+            } catch (error) {
+                alert("Bluetooth Error: " + error);
             }
-        });
-        forceData[i - 1] = [];
-    }
-});
-</script>
+        }
 
+        // Handle the incoming BLE data
+        function handleData(event) {
+            let adcValue = event.target.value.getUint8(0);
+            let voltage = (adcValue / 4095) * 3.3;
+            let forceKg = (voltage - 0.1) / 0.02;  // Adjust this formula for your sensor scaling
+
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`forceDisplay${i}`).innerText = forceKg.toFixed(2);
+                let now = new Date().toLocaleTimeString();
+                document.getElementById(`historyTable${i}`).innerHTML += `<tr><td>${now}</td><td>${forceKg.toFixed(2)} kg</td></tr>`;
+
+                // Push the force data into each pad's array for graphing
+                forceData[i - 1].push({ x: Date.now(), y: forceKg });
+
+                // Limit to 20 data points for better visibility on the graph
+                if (forceData[i - 1].length > 20) forceData[i - 1].shift();
+
+                charts[i - 1].update();
+            }
+        }
+
+        // Initialize the graphs
+        function initializeGraphs() {
+            for (let i = 1; i <= 4; i++) {
+                let ctx = document.getElementById(`graph${i}`).getContext('2d');
+                charts[i - 1] = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        datasets: [{
+                            label: `Force Pad ${i}`,
+                            data: [],
+                            borderColor: 'rgb(75, 192, 192)',
+                            fill: false,
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            x: {
+                                type: 'linear',
+                                position: 'bottom',
+                                ticks: {
+                                    display: false  // Hide X-axis ticks for time-based graph
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Reset the data (clear the force values and history)
+        function resetData() {
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`forceDisplay${i}`).innerText = '0.00 kg';
+                document.getElementById(`historyTable${i}`).innerHTML = '<thead><tr><th>Time</th><th>Force (kg)</th></tr></thead>';
+                forceData[i - 1] = [];
+                charts[i - 1].data.datasets[0].data = [];
+                charts[i - 1].update();
+            }
+            alert('Data has been reset!');
+        }
+
+        // Initialize graphs on page load
+        window.onload = initializeGraphs;
+    </script>
 </body>
 </html>
