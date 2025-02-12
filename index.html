@@ -11,31 +11,35 @@
             font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #000;
+            background-color: #121212;
             color: #fff;
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
+            align-items: flex-start;
+            height: 100%;
             flex-direction: column;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
+            padding-bottom: 50px; /* To prevent footer cut-off */
         }
 
         .container {
-            background: #222;
-            border-radius: 15px;
-            padding: 30px;
-            width: 85%;
+            background: linear-gradient(145deg, #333, #444);
+            border-radius: 20px;
+            padding: 40px;
+            width: 90%;
             max-width: 1200px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.8);
             text-align: center;
+            margin-top: 40px;
+            flex-grow: 1;
         }
 
         h1 {
-            font-size: 2.5em;
+            font-size: 3em;
             color: #FFD700;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
+            margin-bottom: 30px;
+            text-shadow: 4px 4px 10px rgba(0, 0, 0, 0.6);
         }
 
         button {
@@ -48,40 +52,47 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
             margin: 15px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
         }
 
         button:hover {
             background-color: #218838;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
         }
 
         .piezo-section {
-            background-color: #333;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            background-color: #222;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.6);
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .piezo-section h3 {
             color: #66CCFF;
-            font-size: 1.8em;
+            font-size: 2em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
         }
 
         .force-display {
-            font-size: 30px;
+            font-size: 36px;
             font-weight: bold;
             color: #66FF66;
             margin-top: 10px;
+            text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.6);
         }
 
         canvas {
             margin-top: 20px;
             width: 100%;
             max-width: 600px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
         }
 
         table {
@@ -92,9 +103,10 @@
         }
 
         th, td {
-            padding: 12px;
+            padding: 14px;
             text-align: center;
             border: 1px solid #444;
+            font-size: 16px;
         }
 
         th {
@@ -102,13 +114,38 @@
         }
 
         td {
-            background-color: #222;
+            background-color: #333;
         }
 
         .footer {
-            margin-top: 30px;
-            font-size: 0.9em;
+            margin-top: 40px;
+            font-size: 1em;
             color: #bbb;
+            text-align: center;
+        }
+
+        /* Responsive styling */
+        @media screen and (max-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            .piezo-section {
+                padding: 15px;
+            }
+
+            .force-display {
+                font-size: 28px;
+            }
+
+            button {
+                font-size: 16px;
+                padding: 10px 20px;
+            }
         }
 
     </style>
@@ -117,11 +154,10 @@
 
 <div class="container">
     <h1>Musical Boxing Machine - Force Sensor</h1>
-    
-    <!-- Buttons to Connect and Mute -->
+
+    <!-- Bluetooth Button -->
     <button onclick="connectBluetooth()">Connect Bluetooth</button>
-    <button onclick="muteSound()">Mute Sound</button>
-    
+
     <!-- Piezometer 1 Section -->
     <div id="piezometer1" class="piezo-section">
         <h3>Piezometer 1</h3>
@@ -197,7 +233,7 @@
 </div>
 
 <script>
-let charts = [], forceData = [], muteState = false;
+let charts = [], forceData = [];
 
 // Bluetooth Connection
 async function connectBluetooth() {
@@ -234,14 +270,6 @@ function handleData(event) {
         if (forceData[i - 1].length > 10) forceData[i - 1].shift();
         charts[i - 1].update();
     }
-}
-
-// Mute sound control
-function muteSound() {
-    muteState = !muteState;
-    fetch(`http://your-esp32-ip/mute?state=${muteState ? '1' : '0'}`)
-        .then(response => response.text())
-        .then(data => alert(muteState ? "Sound Muted!" : "Sound Unmuted!"));
 }
 
 // Initialize charts
